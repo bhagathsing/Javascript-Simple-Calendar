@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar Month View</title>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            font-size: 0.9em;
+        }
+        #calendar{
+            max-width: 350px;
+            margin: auto;
+        }
+        #cal{
+            text-align: center;
+            max-width: 100%;
+
+        }
+        table{
+            border-collapse: collapse;
+            margin: auto;
+            width: 100%;
+        }
+       #cal table tr td{
+            padding: 10px;
+           border: 1px solid #cccccc;
+        }
+
+        #cal .week-header{
+            font-weight: bold;
+            background: #999999;
+            color: #ffffff;
+        }
+
+
+        .align-c{
+            text-align: center;
+        }
+        .nMonth,.preMonth{
+            color: #cccccc;
+        }
+        .currentDate{
+            background:chartreuse !important;
+        }
+        .week-end1,.week-end2{
+            background: #f2f2f2;
+            width: 50px;
+        }
+        .cal-nav{
+            overflow: hidden;
+            width: 100%;
+        }
+        #my{
+            display: inline-block;
+            width: 120px;
+            line-height: 30px;
+        }
+        #cal table tbody tr td:hover {
+            border-color: cornflowerblue;
+            border-style: dashed;
+            border-width: 1px;
+        }
+        .myclass{
+            background: #cc00cc;
+            padding: 5px;
+        }
+        #prevBtn{
+              float: left;
+        }
+        #nextBtn{
+            float: right;
+        }
+        .btns{
+            width: 55px;
+            height: 30px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="calendar">
+        <div class="align-c cal-nav">
+            <button id="prevBtn" class="btns">&lArr;</button>
+            <span id="my"></span>
+            <button id="nextBtn" class="btns">&rArr;</button>
+        </div>
+        <div id="cal">
+
+        </div>
+    </div>
+<script>
+
+
+    function calendarmMonthView(cMonth, cYear) {
+        var cal = document.getElementById("cal");
+        var dateObj = {
+          month:["January","February","March","April","May","June","July","August","September","October","November","December"],
+          monthDays:[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+          weekDay:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+        };
+
+        if((cYear %4 == 0) && (cYear % 100 != 0) || cYear % 400 == 0){
+            dateObj.monthDays[1] = 29;
+        }
+
+
+
+        var tbls = "<table cellpadding=\"0\" cellspacing=\"0\"><tbody><thead><tr class=\"week-header\">";
+        var days = 0;
+        var rows = 0;
+        var cMonths = cMonth+1;
+        var dateStamp = cMonths+"/"+01+"/"+cYear;
+
+        var dates = new Date(dateStamp);
+        var cDateStamp = new Date();
+
+        var day = dates.getDay();
+        var month = dates.getMonth();
+
+        var prevMonth = cMonth-1;
+        if(prevMonth < 0){
+            prevMonth = 11;
+        }
+
+        var preMonthDays = dateObj.monthDays[prevMonth];
+
+        document.getElementById("my").innerHTML = dateObj.month[cMonth]+" "+cYear;
+
+        var w=0;
+        var weeks = dateObj.weekDay;
+        var weekLen = weeks.length;
+
+        for(w=0;w<weekLen; w++){
+            tbls += "<td>"+weeks[w]+"</td>";
+        }
+        tbls += "</tr></thead><tr>";
+        var cDates = 0;
+        var prevDates = 0;
+        var prevDays = 0;
+        var startNextMonth = false;
+        var startPrevMonth = false;
+        var rowCount = 42;
+        var colCount = 7;
+
+        for (var i = 0; i < rowCount; i++) {
+            if (i % colCount == 0 && i != 0) {
+                days = 0;
+                rows += 1;
+                tbls += "</tr><tr>";
+            }
+            if(day > 0){
+                prevDays = day;
+                if(day <= days && rows==0){
+                    cDates += 1;
+                }else if(rows>0){
+                    cDates += 1;
+                }
+            }else{
+                prevDays = 7;
+                if(rows > 0 ){
+                    if(day <= days && rows>0){
+                        cDates += 1;
+                    }else if(rows>0){
+                        cDates += 1;
+                    }
+                }
+            }
+            if( cDates > dateObj.monthDays[month] ){
+                cDates = 1;
+                startNextMonth = true;
+            }else if(cDates == 0){
+                prevDates += 1;
+                startPrevMonth = true;
+            }else{
+                prevDates = 0;
+                startPrevMonth = false;
+            }
+
+            if(startNextMonth){
+                var tdClass = "nMonth";
+            }else if(startPrevMonth){
+                var tdClass = "preMonth";
+            }else{
+                var tdClass = "cMonth";
+            }
+            var sun = "";
+            if(days == 0){
+                sun = " week-end1";
+            }else if(days == 6){
+                sun = " week-end2";
+            }
+            var dateCount = cDates > prevDates ? (cDates - prevDates) : ((preMonthDays-(prevDays - prevDates)) - cDates);
+            var currentDate = "";
+            if(cDateStamp.getFullYear() === dates.getFullYear() ){
+                if(cDateStamp.getMonth() === dates.getMonth() ){
+                    if(cDateStamp.getDate() === dateCount){
+                        currentDate = " currentDate";
+                    }
+                }
+            }
+            tbls += "<td class=\""+tdClass+currentDate+sun+"\">" + dateCount + "</td>";
+            days++;
+        }
+        tbls += "</tr></tbody></table>";
+        cal.innerHTML = tbls;
+    }
+
+    var dates = new Date();
+    var cMonth = dates.getMonth();
+    var cDate = dates.getDate();
+    var cYear = dates.getFullYear();
+
+    calendarmMonthView(cMonth,cYear);
+
+    var prevBtn = document.getElementById("prevBtn"),
+        nexBtn = document.getElementById("nextBtn");
+    prevBtn.onclick = function(){
+        --cMonth;
+        if(cMonth <0){
+            cMonth = 11;
+            --cYear;
+        }
+        calendarmMonthView(cMonth,cYear);
+    };
+    nexBtn.onclick = function(){
+        ++cMonth;
+        if(cMonth >11){
+            cMonth = 0;
+            ++cYear;
+        }
+        calendarmMonthView(cMonth,cYear);
+    };
+
+
+
+</script>
+</body>
+</html>
